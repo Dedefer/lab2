@@ -86,8 +86,12 @@ namespace lab2::sequence {
             throw std::out_of_range("sequence is empty");
         }
 
+        // бинарный поиск пока писать лень, будет линейный
         size_t indexOf(const ElementType& element) const override {
-            return 0;
+            for (auto i = 0; i < _len; ++i) {
+                if (_arrPtr[i] == element) { return i; }
+            }
+            throw std::out_of_range("element is missing");
         }
 
         SortedSequence<ElementType>* getSubsequence(size_t startIndex, size_t endIndex) const override {

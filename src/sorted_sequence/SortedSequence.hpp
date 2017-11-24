@@ -21,7 +21,7 @@ namespace lab2::sequence {
 
             virtual operator bool() const noexcept = 0;
 
-            virtual size_t indexOf(const ElementType &element) const = 0;
+            virtual size_t indexOf(const ElementType& element) const = 0;
 
             virtual ElementType get(size_t index) const = 0;
 
