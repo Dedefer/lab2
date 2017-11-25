@@ -11,7 +11,7 @@
 namespace lab2::sequence {
 
     template <class ElementType>
-    class ArraySortedSequence : SortedSequence<ElementType> {
+    class ArraySortedSequence : public SortedSequence<ElementType> {
     public:
         // constructors
 
@@ -29,7 +29,9 @@ namespace lab2::sequence {
 
         ArraySortedSequence(ArraySortedSequence<ElementType>&& obj) noexcept
                 : _len{obj._len}, _arrPtr{obj._arrPtr}, _comparator{obj._comparator} {
-            obj.clear();
+            obj._len = 0;
+            obj._comparator = less<ElementType>();
+            obj._arrPtr = nullptr;
         }
 
         // operators =
@@ -52,7 +54,10 @@ namespace lab2::sequence {
                 _len = rhs._len;
                 _arrPtr = rhs._arrPtr;
                 _comparator = rhs._comparator();
-                rhs.clear();
+
+                rhs._len = 0;
+                rhs._comparator = less<ElementType>();
+                rhs._arrPtr = nullptr;
             }
             return *this;
         }
@@ -96,7 +101,7 @@ namespace lab2::sequence {
 
         SortedSequence<ElementType>* getSubsequence(size_t startIndex, size_t endIndex) const override {
             if (startIndex >= 0 && endIndex < _len && startIndex <= endIndex) {
-                auto tempObjPtr = new ArraySortedSequence<ElementType>;
+                auto tempObjPtr = new ArraySortedSequence<ElementType>(_comparator);
                 tempObjPtr -> _len = endIndex - startIndex + 1;
                 tempObjPtr -> _arrPtr = new ElementType[tempObjPtr -> _len];
                 for (auto i = startIndex; i <= endIndex; ++i) {
