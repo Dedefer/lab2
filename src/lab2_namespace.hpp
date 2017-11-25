@@ -19,6 +19,13 @@ namespace lab2 {
         }
     };
 
+    template <class T>
+    struct equal {
+        constexpr bool operator()(const T& lhs, const T& rhs) const {
+            return lhs == rhs;
+        }
+    };
+
 }
 
 #endif //LAB2_LAB2_NAMESPACE_HPP
