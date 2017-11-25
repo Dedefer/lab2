@@ -91,10 +91,16 @@ namespace lab2::sequence {
             throw std::out_of_range("sequence is empty");
         }
 
-        // бинарный поиск пока писать лень, будет линейный
         size_t indexOf(const ElementType& element) const override {
-            for (auto i = 0; i < _len; ++i) {
-                if (_arrPtr[i] == element) { return i; }
+            if (_len) {
+                size_t le = 0, re = _len - 1;
+                while (le != re) {
+                    size_t pivot = (le + re) / 2;
+                    if (_arrPtr[pivot] == element) { return pivot; }
+                    if (_comparator(element, _arrPtr[pivot])) { re = pivot; }
+                    else { le = pivot + 1; }
+                }
+                if (_arrPtr[le] == element) { return le; }
             }
             throw std::out_of_range("element is missing");
         }
