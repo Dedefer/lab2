@@ -126,12 +126,11 @@ namespace lab2::sequence {
                     ++_len;
                     return;
                 }
-                auto preNodePtr = _head;
                 auto nodePtr = _head;
                 for (; nodePtr -> _next; nodePtr = nodePtr -> _next) {
                     if (_comparator(element, nodePtr -> _next -> _value)) { break; }
                 }
-                nodePtr -> _next = new TNode(element, preNodePtr -> _next);
+                nodePtr -> _next = new TNode(element, nodePtr -> _next);
                 ++_len;
             } else {
                 _head = new TNode(element);
@@ -146,12 +145,11 @@ namespace lab2::sequence {
                     ++_len;
                     return;
                 }
-                auto preNodePtr = _head;
                 auto nodePtr = _head;
                 for (; nodePtr -> _next; nodePtr = nodePtr -> _next) {
                     if (_comparator(element, nodePtr -> _next -> _value)) { break; }
                 }
-                nodePtr -> _next = new TNode(element, preNodePtr -> _next);
+                nodePtr -> _next = new TNode(element, nodePtr -> _next);
                 ++_len;
             } else {
                 _head = new TNode(element);
