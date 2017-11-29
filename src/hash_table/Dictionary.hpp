@@ -9,6 +9,9 @@
 #include <cstddef>
 #include "../lab2_namespace.hpp"
 
+
+// comparator ==, comparator <, hash function, etc
+// will be immutable and passed in constructors.
 namespace lab2::hash_table {
 
     template <class KeyType, class ElementType>
@@ -29,7 +32,7 @@ namespace lab2::hash_table {
 
         virtual void add(ConstKeyRef key, ConstElementRef element) = 0;
 
-        virtual void clear(ComparatorType<KeyType> comparator = equal<KeyType>()) noexcept = 0;
+        virtual void clear() noexcept = 0;
 
         virtual ~IDictionary() = default;
 
