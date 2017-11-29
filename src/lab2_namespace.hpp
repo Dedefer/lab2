@@ -26,6 +26,13 @@ namespace lab2 {
         }
     };
 
+    namespace dictionary {
+
+        template <class T>
+        using HasherType = std::function<size_t(const T&)>;
+
+    }
+
 }
 
 #endif //LAB2_LAB2_NAMESPACE_HPP

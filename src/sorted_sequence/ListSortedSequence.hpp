@@ -44,6 +44,7 @@ namespace lab2::sequence {
             if (this != &rhs) {
                 clear();
                 _len = rhs._len;
+                _head = nullptr;
                 _comparator = rhs._comparator;
                 if(rhs._head) {
                     _head = new TNode(*rhs._head);

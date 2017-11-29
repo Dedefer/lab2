@@ -12,10 +12,11 @@
 
 // comparator ==, comparator <, hash function, etc
 // will be immutable and passed in constructors.
-namespace lab2::hash_table {
+namespace lab2::dictionary {
 
     template <class KeyType, class ElementType>
     class Dictionary {
+
     public:
 
         using ConstKeyRef = const KeyType&;
@@ -32,9 +33,11 @@ namespace lab2::hash_table {
 
         virtual void add(ConstKeyRef key, ConstElementRef element) = 0;
 
+        virtual void remove(ConstKeyRef key) noexcept = 0;
+
         virtual void clear() noexcept = 0;
 
-        virtual ~IDictionary() = default;
+        virtual ~Dictionary() = default;
 
     };
 
