@@ -40,9 +40,26 @@ namespace lab2::dictionary {
 
         };
 
+        /*
+        // debug utility
+
+        bool _isValid(RBNode* node, int depth) {
+            if (node) {
+                bool lSonValid = true;
+                bool rSonValid = true;
+                if (node->isRed) {
+                    lSonValid = node -> lSon ? !(node -> lSon -> isRed) : true;
+                    rSonValid = node -> rSon ? !(node -> rSon -> isRed) : true;
+                } else { ++depth; }
+                return lSonValid && rSonValid && _isValid(node -> lSon, depth) && _isValid(node -> rSon, depth);
+            } else {std::cout << depth << " ";}
+            return true;
+        }
+        */
+
         // utility methods
 
-        bool _nodeIsRightSon(RBNode* node) const { return node -> parent -> rSon == node; }
+        bool _nodeIsRightSon(RBNode* node) const noexcept { return node -> parent -> rSon == node; }
 
         RBNode* _uncle(RBNode* node) const {
             auto pNode = node -> parent;
@@ -50,7 +67,7 @@ namespace lab2::dictionary {
             return pNode -> parent -> rSon;
         }
 
-        void _lRotate(RBNode* node) {
+        void _lRotate(RBNode* node) noexcept {
             auto tempNode = node -> rSon;
             tempNode -> parent = node -> parent;
             if (tempNode -> parent) {
@@ -66,7 +83,7 @@ namespace lab2::dictionary {
             tempNode -> lSon = node;
         }
 
-        void _rRotate(RBNode* node) {
+        void _rRotate(RBNode* node) noexcept {
             auto tempNode = node -> lSon;
             tempNode -> parent = node -> parent;
             if (tempNode -> parent) {
@@ -105,9 +122,9 @@ namespace lab2::dictionary {
             } else { _addBalance_case1(node); }
         }
 
-            void _addBalance_case1(RBNode* node) { node -> changeColor(); }
+            void _addBalance_case1(RBNode* node) { node -> changeColor(); } // node is root
 
-            void _addBalance_case2(RBNode* pNode, RBNode* uNode) {
+            void _addBalance_case2(RBNode* pNode, RBNode* uNode) { // node's parent and uncle are red
                 pNode -> changeColor();
                 pNode -> parent -> changeColor();
                 uNode -> changeColor();
@@ -115,14 +132,14 @@ namespace lab2::dictionary {
             }
 
             void _addBalance_case3(RBNode* node, RBNode* pNode,
-                                   RBNode* gpNode, bool nodeIsRightSon) {
+                                   RBNode* gpNode, bool nodeIsRightSon) { // node and uncle have similar orientation and uncle is black
                 if (nodeIsRightSon) { _lRotate(pNode); }
                 else { _rRotate(pNode); }
                 _addBalance_case4(pNode, node, gpNode, !nodeIsRightSon);
             }
 
             void _addBalance_case4(RBNode* node, RBNode* pNode,
-                                   RBNode* gpNode, bool pNodeIsRightSon) {
+                                   RBNode* gpNode, bool pNodeIsRightSon) { // node and uncle have different orientation and uncle is black
                 if (pNodeIsRightSon) { _lRotate(gpNode); }
                 else {_rRotate(gpNode); }
                 gpNode -> changeColor();
@@ -156,9 +173,127 @@ namespace lab2::dictionary {
             }
         }
 
-        // remove utility
+        // remove utility (in all cases node has zero or one sons)
 
-        // fields
+        RBNode* _onlySon(RBNode* node) noexcept {
+            return node -> rSon ? node -> rSon : node -> lSon;
+        }
+
+        RBNode* _sibling(RBNode* node) noexcept {
+            return _nodeIsRightSon(node) ? node -> parent -> lSon
+                                         : node -> parent -> rSon;
+        }
+
+        void _removeBalance(RBNode* node) noexcept {
+            if (node -> isRed) { _removeBalance_case2(node); }
+            else if (node -> lSon || node -> rSon) { _removeBalance_case1(node); }
+            else {
+                _removeBalance_case3(node);
+                if (node -> parent) {
+                    if (_nodeIsRightSon(node)) { node -> parent -> rSon = nullptr; }
+                    else { node -> parent -> lSon = nullptr; }
+                } else { _root = nullptr; }
+            }
+        }
+
+            void _removeBalance_case1(RBNode* node) noexcept { // node is black, son is red
+                auto son = _onlySon(node);
+                son -> parent = node -> parent;
+                if (son -> parent) {
+                    if (_nodeIsRightSon(node)) { son -> parent -> rSon = son; }
+                    else { son -> parent -> lSon = son; }
+                } else { _root = son; }
+                son -> changeColor();
+            }
+
+            void _removeBalance_case2(RBNode* node) noexcept { // node is red, son is black
+                auto son = _onlySon(node);
+                if (son) { son -> parent = node -> parent; }
+                if (_nodeIsRightSon(node)) { node -> parent -> rSon = son; }
+                else { node -> parent -> lSon = son; }
+            }
+
+            // after you call it from _removeBalance you must manualy replace node with nullptr
+            void _removeBalance_case3(RBNode* node) noexcept { // node is black, sons are null (or recursive)
+                auto pNode = node -> parent;
+                if (pNode) {
+                    auto sNode = _sibling(node);
+                    if (sNode -> isRed) {
+                        _removeBalance_case3_subcase1(node); // pNode -> isRed : false
+                        return;
+                    } else if (pNode -> isRed) {
+                        _removeBalance_case3_subcase345(node);
+                    } else {
+                        if ((sNode -> lSon && sNode -> lSon -> isRed) ||
+                            (sNode -> rSon && sNode -> rSon -> isRed)) {
+                            if (_nodeIsRightSon(node) ? sNode -> lSon : sNode -> rSon) {
+                                _removeBalance_case3_subcase5(node);
+                            } else { _removeBalance_case3_subcase4(node); }
+                        } else { _removeBalance_case3_subcase2(node); }
+                    }
+                }
+            }
+
+                void _removeBalance_case3_subcase1(RBNode* node) noexcept { // sibling is red (parent is black)
+                    auto sNode = _sibling(node);
+                    auto pNode = node -> parent;
+                    if (_nodeIsRightSon(sNode)) { _lRotate(pNode); }
+                    else { _rRotate(pNode); }
+                    pNode -> changeColor();
+                    sNode -> changeColor();
+                    _removeBalance_case3_subcase345(node);
+                }
+
+                void _removeBalance_case3_subcase2(RBNode* node) noexcept { // parent and sibling are black, sibling's sons are null
+                    _sibling(node) -> changeColor();
+                    _removeBalance_case3(node -> parent);
+                }
+
+                void _removeBalance_case3_subcase345(RBNode* node) noexcept { // agregated for ..._subcase1
+                    auto sNode = _sibling(node);
+                    if ((sNode -> lSon && sNode -> lSon -> isRed) ||
+                        (sNode -> rSon && sNode -> rSon -> isRed)) {
+                        bool ssNodeAndNodeIsNotCooriented = _nodeIsRightSon(node) ? sNode -> lSon
+                                                                                  : sNode -> rSon;
+                        if (ssNodeAndNodeIsNotCooriented) { _removeBalance_case3_subcase5(node); }
+                        else { _removeBalance_case3_subcase4(node); }
+                    } else { _removeBalance_case3_subcase3(node); }
+                }
+
+                    void _removeBalance_case3_subcase3(RBNode* node) noexcept { // parent is red, sibling is black, sibling's sons are null
+                        node -> parent -> changeColor();
+                        _sibling(node) -> changeColor();
+                    }
+
+                    void _removeBalance_case3_subcase4(RBNode* node) noexcept { // sibling is black, subsibling is red and
+                                                                                // have similar orientation to node
+                        auto sNode = _sibling(node);
+                        auto ssNode = _nodeIsRightSon(sNode) ? sNode -> lSon
+                                                             : sNode -> rSon;
+                        if (_nodeIsRightSon(ssNode)) { _lRotate(sNode); }
+                        else { _rRotate(sNode); }
+                        sNode -> changeColor();
+                        ssNode -> changeColor();
+                        _removeBalance_case3_subcase5(node);
+                    }
+
+                    void _removeBalance_case3_subcase5(RBNode* node) noexcept {  // sibling is black, subsibling is red and
+                                                                                 // have different orientation to node
+                        auto pNode = node -> parent;
+                        auto sNode = _sibling(node);
+                        auto ssNode = _nodeIsRightSon(sNode) ? sNode -> rSon
+                                                             : sNode -> lSon;
+                        if (_nodeIsRightSon(ssNode)) { _lRotate(pNode); }
+                        else { _rRotate(pNode); }
+                        ssNode -> changeColor();
+                        sNode -> isRed = pNode -> isRed;
+                        pNode -> isRed = false;
+                    }
+
+
+
+
+                        // fields
 
         ComparatorType<KeyType> _equalComparator;
 
@@ -292,14 +427,48 @@ namespace lab2::dictionary {
         }
 
         void remove(ConstKeyRef key) noexcept override {
-
+            bool keyFound = false;
+            auto node = _root;
+            while (node) {
+                if (_equalComparator(key, node -> field.first)) {
+                    keyFound = true;
+                    break;
+                }
+                if (_relationComparator(key, node -> field.first)) { node = node -> lSon; }
+                else { node = node -> rSon; }
+            }
+            if (keyFound) {
+                if (node -> lSon && node -> rSon) {
+                    auto tempNode = node -> rSon;
+                    for (;tempNode -> lSon;
+                         tempNode = tempNode -> lSon);
+                    node -> field = std::move(tempNode -> field);
+                    _removeBalance(tempNode);
+                    delete tempNode;
+                } else {
+                    _removeBalance(node);
+                    delete node;
+                }
+                --_size;
+            }
         }
+
+
 
         void clear() noexcept override {
             _recurciveClear(_root);
             _root = nullptr;
             _size = 0;
         }
+
+        /*
+        // debug
+
+        bool isValid() {
+            if (_root && _root -> isRed) return false;
+            return _isValid(_root, 0);
+        }
+        */
 
     };
 }
