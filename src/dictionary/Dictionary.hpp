@@ -23,7 +23,7 @@ namespace lab2::dictionary {
 
         using ConstElementRef = const ElementType&;
 
-        virtual size_t getCount() const noexcept = 0;
+        virtual size_t size() const noexcept = 0;
 
         virtual ElementType get(ConstKeyRef key) const = 0;
 

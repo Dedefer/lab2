@@ -235,7 +235,7 @@ namespace lab2::dictionary {
 
         // overrided methods
 
-        size_t getCount() const noexcept override { return _countOfElements; }
+        size_t size() const noexcept override { return _countOfElements; }
 
         ElementType get(ConstKeyRef key) const override {
             if (_slots) {
