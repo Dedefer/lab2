@@ -289,6 +289,16 @@ namespace lab2::dictionary {
                     pNode -> isRed = false;
                 }
 
+        // map utility
+
+        void  _recursiveMap(MapperType<ElementType> mapper, RBNode* node) {
+            if (node) {
+                mapper(node -> field.second);
+                _recursiveMap(mapper, node -> lSon);
+                _recursiveMap(mapper, node -> rSon);
+            }
+        }
+
 
 
 
@@ -366,6 +376,8 @@ namespace lab2::dictionary {
         // overrided methods
 
         size_t size() const noexcept override { return _size; }
+
+        size_t capacity() const noexcept override { return  _size; }
 
         ElementType get(ConstKeyRef key) const override {
             for (auto node = _root; node;) {
@@ -458,14 +470,9 @@ namespace lab2::dictionary {
             _size = 0;
         }
 
-        /*
-        // debug
-
-        bool isValid() {
-            if (_root && _root -> isRed) return false;
-            return _isValid(_root, 0);
+        void map(MapperType<ElementType> mapper) override {
+            _recursiveMap(mapper, _root);
         }
-        */
 
     };
 }

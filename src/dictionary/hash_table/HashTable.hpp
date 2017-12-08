@@ -15,21 +15,22 @@ namespace lab2::dictionary {
     private:
 
         // types
+        using NodePair = std::pair<KeyType, ElementType>;
 
         using ConstKeyRef = const KeyType&;
 
         using ConstElementRef = const ElementType&;
 
-        class CollisionList {
+        struct CollisionList {
 
-        private:
-
-            using NodePair = std::pair<KeyType, ElementType>;
 
             struct Node {
 
-                Node(ConstKeyRef key, ConstElementRef element, Node* nextNode = nullptr) noexcept
-                : field{key, element}, next{nextNode} {}
+                Node(ConstKeyRef key, ConstElementRef element, Node* nextNode = nullptr)
+                        : field{key, element}, next{nextNode} {}
+
+                Node(NodePair&& pair, Node* nextNode = nullptr) noexcept
+                        : field{pair}, next{nextNode} {}
 
                 NodePair field;
 
@@ -38,13 +39,11 @@ namespace lab2::dictionary {
 
             Node* _head;
 
-        public:
-
             // constructors
 
-            CollisionList() noexcept : _head{nullptr} {}
+            CollisionList() noexcept : _head{nullptr}, _size{0} {}
 
-            CollisionList(const CollisionList& obj) : _head{obj._head} {
+            CollisionList(const CollisionList& obj) : _head{obj._head}, _size{obj._size} {
                 if(obj._head) {
                     _head = new Node{*obj._head};
                     for(auto nodePtr = _head; nodePtr -> next; nodePtr = nodePtr -> next) {
@@ -54,8 +53,9 @@ namespace lab2::dictionary {
             }
 
             CollisionList(CollisionList&& obj) noexcept
-            : _head{obj._head} {
+            : _head{obj._head}, _size{obj._size} {
                 obj._head = nullptr;
+                obj._size = 0;
             }
 
             // operators =
@@ -64,6 +64,7 @@ namespace lab2::dictionary {
                 if (this != &rhs) {
                     clear();
                     _head = nullptr;
+                    _size = rhs._size;
                     if(rhs._head) {
                         _head = new Node{*rhs._head};
                         for(auto nodePtr = _head; nodePtr -> next; nodePtr = nodePtr -> next) {
@@ -78,7 +79,9 @@ namespace lab2::dictionary {
                 if (this != &rhs) {
                     clear();
                     _head = rhs._head;
+                    _size = rhs._size;
                     rhs._head = nullptr;
+                    rhs._size = 0;
                 }
                 return *this;
             }
@@ -96,6 +99,7 @@ namespace lab2::dictionary {
                     delete tempPtr;
                 }
                 _head = nullptr;
+                _size = 0;
             }
 
             bool remove(ConstKeyRef key, ComparatorType<KeyType> equalComparator) noexcept {
@@ -103,6 +107,7 @@ namespace lab2::dictionary {
                     auto tempPtr = _head;
                     _head = _head -> next;
                     delete tempPtr;
+                    --_size;
                     return true;
                 }
                 for (auto nodePtr = _head; nodePtr; nodePtr = nodePtr -> next) {
@@ -110,6 +115,7 @@ namespace lab2::dictionary {
                         auto tempPtr = nodePtr -> next;
                         nodePtr -> next = nodePtr -> next -> next;
                         delete tempPtr;
+                        --_size;
                         return true;
                     }
                 }
@@ -124,8 +130,16 @@ namespace lab2::dictionary {
                     }
                 }
                 _head = new Node{key, element, _head};
+                ++_size;
                 return true;
             }
+
+            void add(NodePair&& pair) {
+                _head = new Node{std::move(pair), _head};
+                ++_size;
+            }
+
+            size_t size() const noexcept { return _size; }
 
             ElementType find(ConstKeyRef key, ComparatorType<KeyType> equalComparator) {
                 for (auto nodePtr = _head; nodePtr; nodePtr = nodePtr -> next) {
@@ -145,7 +159,42 @@ namespace lab2::dictionary {
                 return false;
             }
 
+            void map(MapperType<ElementType> mapper) {
+                for (auto nodePtr = _head; nodePtr; nodePtr = nodePtr -> next) {
+                    mapper(nodePtr -> field.second);
+                }
+            }
+
+        private:
+            size_t _size;
+
         };
+
+        // utility
+
+        void _rebuild() {
+            NodePair tempBuffer[_countOfElements];
+            size_t tempIndex = 0;
+            for (size_t i = 0; i < _size; ++i) {
+                for (auto nodePtr = _slots[i]._head; nodePtr;
+                     nodePtr = nodePtr -> next) {
+                    tempBuffer[tempIndex++] = std::move(nodePtr -> field);
+                }
+            }
+
+            tempIndex = 0;
+            delete[] _slots;
+            _size = _size << 1;
+            _slots = new CollisionList[_size];
+
+            for (; tempIndex < _countOfElements; ++tempIndex) {
+                _slots[_getHash(tempBuffer[tempIndex].first)].add(std::move(tempBuffer[tempIndex]));
+            }
+        }
+
+        size_t _getHash(ConstKeyRef key) const noexcept {
+            return _hasher(key) & (_size - 1);
+        }
 
         // fields
 
@@ -164,10 +213,10 @@ namespace lab2::dictionary {
 
         // constructors
 
-        HashTable(size_t countOfSlots = 101, HasherType<KeyType> hasher = std::hash<KeyType>(),
+        HashTable(HasherType<KeyType> hasher = std::hash<KeyType>(),
                   ComparatorType<KeyType> equalComparator = equal<KeyType>())
-                : _size{countOfSlots}, _hasher{hasher}, _equalComparator{equalComparator},
-                _slots{new CollisionList[countOfSlots]} {}
+                : _size{128}, _hasher{hasher}, _equalComparator{equalComparator},
+                _slots{new CollisionList[_size]} {}
 
         HashTable(const HashTable<KeyType, ElementType>& obj) : _size{obj._size}, _hasher{obj._hasher},
                                                                 _equalComparator{obj._equalComparator},
@@ -237,9 +286,11 @@ namespace lab2::dictionary {
 
         size_t size() const noexcept override { return _countOfElements; }
 
+        size_t capacity() const noexcept override { return _size * 3; }
+
         ElementType get(ConstKeyRef key) const override {
             if (_slots) {
-                auto index = _hasher(key) % _size;
+                auto index = _getHash(key);
                 return _slots[index].find(key, _equalComparator);
             }
             throw std::out_of_range{"element with this key is missing"};
@@ -249,7 +300,7 @@ namespace lab2::dictionary {
 
         bool check(ConstKeyRef key) const noexcept override {
             if (_slots) {
-                auto index = _hasher(key) % _size;
+                auto index = _getHash(key);
                 return _slots[index].check(key, _equalComparator);
             }
             return false;
@@ -257,13 +308,17 @@ namespace lab2::dictionary {
 
         void add(ConstKeyRef key, ConstElementRef element) override {
             if (!_slots) { _slots = new CollisionList[_size]; }
-            auto index = _hasher(key) % _size;
+            auto index = _getHash(key);
             if (_slots[index].addOrModify(key, element, _equalComparator)) { ++_countOfElements; }
+            if ((_slots[index].size() > 3)
+                && ((_size << 1) < std::numeric_limits<size_t>::max())) {
+                _rebuild();
+            }
         }
 
         void remove(ConstKeyRef key) noexcept override {
             if (_slots) {
-                auto index = _hasher(key) % _size;
+                auto index = _getHash(key);
                 if (_slots[index].remove(key, _equalComparator)) { --_countOfElements; }
             }
         }
@@ -273,6 +328,10 @@ namespace lab2::dictionary {
                 for (size_t i = 0; i < _size; ++i) { _slots[i].clear(); }
                 _countOfElements = 0;
             }
+        }
+
+        void map(MapperType<ElementType> mapper) override {
+            for (size_t i = 0; i < _size; ++i) { _slots[i].map(mapper); }
         }
 
     };

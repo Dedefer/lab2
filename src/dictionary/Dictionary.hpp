@@ -27,6 +27,8 @@ namespace lab2::dictionary {
 
         virtual ElementType get(ConstKeyRef key) const = 0;
 
+        virtual size_t capacity() const noexcept = 0;
+
         virtual ElementType operator[](ConstKeyRef key) const = 0;
 
         virtual bool check(ConstKeyRef key) const noexcept = 0;
@@ -36,6 +38,8 @@ namespace lab2::dictionary {
         virtual void remove(ConstKeyRef key) noexcept = 0;
 
         virtual void clear() noexcept = 0;
+
+        virtual void map(MapperType<ElementType> mapper) = 0;
 
         virtual ~Dictionary() = default;
 

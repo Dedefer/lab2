@@ -31,6 +31,9 @@ namespace lab2 {
         template <class T>
         using HasherType = std::function<size_t(const T&)>;
 
+        template <class ElementType>
+        using MapperType = std::function<void(ElementType&)>;
+
     }
 
 }
