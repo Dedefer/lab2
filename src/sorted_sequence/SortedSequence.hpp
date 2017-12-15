@@ -15,7 +15,7 @@ namespace lab2::sequence {
         class SortedSequence {
         public:
 
-            virtual size_t getLength() const noexcept = 0;
+            virtual size_t size() const noexcept = 0;
 
             virtual bool isEmpty() const noexcept = 0;
 

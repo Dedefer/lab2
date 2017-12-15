@@ -5,7 +5,7 @@
 #ifndef LAB2_RBTREE_HPP
 #define LAB2_RBTREE_HPP
 
-#include "../Dictionary.hpp"
+#include "Dictionary.hpp"
 
 namespace lab2::dictionary {
 
@@ -226,7 +226,9 @@ namespace lab2::dictionary {
                     } else {
                         if ((sNode -> lSon && sNode -> lSon -> isRed) || // sibling has red son?
                             (sNode -> rSon && sNode -> rSon -> isRed)) {
-                            if (_nodeIsRightSon(node) ? sNode -> lSon : sNode -> rSon) { // node and sibling's son have different orientation?
+                            auto ssNode = (sNode -> lSon && sNode -> lSon -> isRed) ?
+                                          sNode -> lSon : sNode -> rSon;
+                            if (_nodeIsRightSon(node) != _nodeIsRightSon(ssNode)) { // node and sibling's son have different orientation?
                                 _removeBalance_case3_subcase5(node);
                             } else { _removeBalance_case3_subcase4(node); }
                         } else { _removeBalance_case3_subcase2(node); }
@@ -253,7 +255,9 @@ namespace lab2::dictionary {
                     auto sNode = _sibling(node);
                     if ((sNode -> lSon && sNode -> lSon -> isRed) || // sibling has red son?
                         (sNode -> rSon && sNode -> rSon -> isRed)) {
-                        if (_nodeIsRightSon(node) ? sNode -> lSon : sNode -> rSon) { // node and sibling's son have different orientation?
+                        auto ssNode = (sNode -> lSon && sNode -> lSon -> isRed) ?
+                                      sNode -> lSon : sNode -> rSon;
+                        if (_nodeIsRightSon(node) != _nodeIsRightSon(ssNode)) { // node and sibling's son have different orientation?
                             _removeBalance_case3_subcase5(node);
                         } else { _removeBalance_case3_subcase4(node); }
                     } else { _removeBalance_case3_subcase3(node); }

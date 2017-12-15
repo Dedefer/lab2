@@ -68,7 +68,7 @@ namespace lab2::sequence {
 
         // overrided methods
 
-        size_t getLength() const noexcept override { return _len; }
+        size_t size() const noexcept override { return _len; }
 
         bool isEmpty() const noexcept override { return !_len; }
 

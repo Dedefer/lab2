@@ -76,7 +76,7 @@ namespace lab2::sequence {
 
         // overrided methods
 
-        size_t getLength() const noexcept override { return _len; }
+        size_t size() const noexcept override { return _len; }
 
         bool isEmpty() const noexcept override { return !_len; }
 
@@ -206,6 +206,7 @@ namespace lab2::sequence {
                     if (nodePtrForTemp -> _next) {
                         nodePtrForTemp -> _next = new TNode(*(nodePtrForTemp -> _next));
                     }
+                    if (i == (endIndex - 1)) { nodePtrForTemp -> _next = nullptr; }
                     ++i;
                     ++(tempObj -> _len);
                 }

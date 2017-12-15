@@ -5,7 +5,8 @@
 #ifndef LAB2_HASHTABLE_HPP
 #define LAB2_HASHTABLE_HPP
 
-#include "../Dictionary.hpp"
+
+#include "Dictionary.hpp"
 
 namespace lab2::dictionary {
 
@@ -215,7 +216,7 @@ namespace lab2::dictionary {
 
         HashTable(HasherType<KeyType> hasher = std::hash<KeyType>(),
                   ComparatorType<KeyType> equalComparator = equal<KeyType>())
-                : _size{128}, _hasher{hasher}, _equalComparator{equalComparator},
+                : _size{128}, _countOfElements{0}, _hasher{hasher}, _equalComparator{equalComparator},
                 _slots{new CollisionList[_size]} {}
 
         HashTable(const HashTable<KeyType, ElementType>& obj) : _size{obj._size}, _hasher{obj._hasher},
@@ -235,7 +236,7 @@ namespace lab2::dictionary {
             obj._hasher = std::hash<KeyType>();
             obj._equalComparator = equal<KeyType>();
             obj._countOfElements = 0;
-            obj._size = 101;
+            obj._size = 128;
             obj._slots = nullptr;
         }
 
@@ -270,7 +271,7 @@ namespace lab2::dictionary {
                 _hasher = rhs._hasher;
 
                 rhs._slots = nullptr;
-                rhs._size = 101;
+                rhs._size = 128;
                 rhs._countOfElements = 0;
                 rhs._equalComparator = equal<KeyType>();
                 rhs._hasher = std::hash<KeyType>();
