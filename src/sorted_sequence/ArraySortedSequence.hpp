@@ -177,8 +177,6 @@ namespace lab2::sequence {
         }
 
 
-
-
     private:
 
         size_t _len;

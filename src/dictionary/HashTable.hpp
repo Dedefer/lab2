@@ -13,7 +13,7 @@ namespace lab2::dictionary {
     template <class KeyType, class ElementType>
     class HashTable : public Dictionary<KeyType, ElementType> {
 
-    private:
+    public:
 
         // types
         using NodePair = std::pair<KeyType, ElementType>;
@@ -21,6 +21,132 @@ namespace lab2::dictionary {
         using ConstKeyRef = const KeyType&;
 
         using ConstElementRef = const ElementType&;
+
+        // constructors
+
+        HashTable(HasherType<KeyType> hasher = std::hash<KeyType>(),
+                  ComparatorType<KeyType> equalComparator = equal<KeyType>())
+                : _size{128}, _countOfElements{0}, _hasher{hasher}, _equalComparator{equalComparator},
+                  _slots{new CollisionList[_size]} {}
+
+        HashTable(const HashTable<KeyType, ElementType>& obj) : _size{obj._size}, _hasher{obj._hasher},
+                                                                _equalComparator{obj._equalComparator},
+                                                                _countOfElements{0},
+                                                                _slots{new CollisionList[obj._size]} {
+            for (size_t i = 0; i < _size; ++i) {
+                _slots[i] = obj._slots[i];
+                ++_countOfElements;
+            }
+        }
+
+        HashTable(HashTable<KeyType, ElementType>&& obj) noexcept : _size{obj._size}, _hasher{obj._hasher},
+                                                                    _equalComparator{obj._equalComparator},
+                                                                    _countOfElements{obj._countOfElements},
+                                                                    _slots{obj._slots} {
+            obj._hasher = std::hash<KeyType>();
+            obj._equalComparator = equal<KeyType>();
+            obj._countOfElements = 0;
+            obj._size = 128;
+            obj._slots = nullptr;
+        }
+
+        // operators =
+
+        HashTable<KeyType, ElementType>& operator= (const HashTable<KeyType, ElementType>& rhs) {
+            if (this != &rhs) {
+                auto tempSlots = new CollisionList[_size];
+                delete [] _slots;
+                _slots = tempSlots;
+                _size = rhs._size;
+                _hasher = rhs._hasher;
+                _equalComparator = rhs._equalComparator;
+                _countOfElements = 0;
+                for (size_t i = 0; i < _size; ++i) {
+                    _slots[i] = rhs._slots[i];
+                    ++_countOfElements;
+                }
+
+            }
+            return *this;
+        }
+
+
+        HashTable<KeyType, ElementType>& operator= (HashTable<KeyType, ElementType>&& rhs) noexcept {
+            if (this != &rhs) {
+                delete [] _slots;
+                _slots = rhs._slots;
+                _size = rhs._size;
+                _countOfElements = rhs._countOfElements;
+                _equalComparator = rhs._equalComparator;
+                _hasher = rhs._hasher;
+
+                rhs._slots = nullptr;
+                rhs._size = 128;
+                rhs._countOfElements = 0;
+                rhs._equalComparator = equal<KeyType>();
+                rhs._hasher = std::hash<KeyType>();
+            }
+            return *this;
+        }
+
+        // destructor
+
+        ~HashTable() override { delete [] _slots; }
+
+        // overrided methods
+
+        size_t size() const noexcept override { return _countOfElements; }
+
+        size_t capacity() const noexcept override { return _size * 3; }
+
+        ElementType get(ConstKeyRef key) const override {
+            if (_slots) {
+                auto index = _getHash(key);
+                return _slots[index].find(key, _equalComparator);
+            }
+            throw std::out_of_range{"element with this key is missing"};
+        }
+
+        ElementType operator[](ConstKeyRef key) const override { return get(key); }
+
+        bool check(ConstKeyRef key) const noexcept override {
+            if (_slots) {
+                auto index = _getHash(key);
+                return _slots[index].check(key, _equalComparator);
+            }
+            return false;
+        }
+
+        void add(ConstKeyRef key, ConstElementRef element) override {
+            if (!_slots) { _slots = new CollisionList[_size]; }
+            auto index = _getHash(key);
+            if (_slots[index].addOrModify(key, element, _equalComparator)) { ++_countOfElements; }
+            if ((_slots[index].size() > 3)
+                && ((_size << 1) < std::numeric_limits<size_t>::max())) {
+                _rebuild();
+            }
+        }
+
+        void remove(ConstKeyRef key) noexcept override {
+            if (_slots) {
+                auto index = _getHash(key);
+                if (_slots[index].remove(key, _equalComparator)) { --_countOfElements; }
+            }
+        }
+
+        void clear() noexcept override {
+            if (_slots) {
+                for (size_t i = 0; i < _size; ++i) { _slots[i].clear(); }
+                _countOfElements = 0;
+            }
+        }
+
+        void map(MapperType<ElementType> mapper) override {
+            for (size_t i = 0; i < _size; ++i) { _slots[i].map(mapper); }
+        }
+
+
+    private:
 
         struct CollisionList {
 
@@ -208,133 +334,6 @@ namespace lab2::dictionary {
         size_t _countOfElements;
 
         CollisionList* _slots;
-
-    public:
-
-
-        // constructors
-
-        HashTable(HasherType<KeyType> hasher = std::hash<KeyType>(),
-                  ComparatorType<KeyType> equalComparator = equal<KeyType>())
-                : _size{128}, _countOfElements{0}, _hasher{hasher}, _equalComparator{equalComparator},
-                _slots{new CollisionList[_size]} {}
-
-        HashTable(const HashTable<KeyType, ElementType>& obj) : _size{obj._size}, _hasher{obj._hasher},
-                                                                _equalComparator{obj._equalComparator},
-                                                                _countOfElements{0},
-                                                                _slots{new CollisionList[obj._size]} {
-            for (size_t i = 0; i < _size; ++i) {
-                _slots[i] = obj._slots[i];
-                ++_countOfElements;
-            }
-        }
-
-        HashTable(HashTable<KeyType, ElementType>&& obj) noexcept : _size{obj._size}, _hasher{obj._hasher},
-                                                                    _equalComparator{obj._equalComparator},
-                                                                    _countOfElements{obj._countOfElements},
-                                                                    _slots{obj._slots} {
-            obj._hasher = std::hash<KeyType>();
-            obj._equalComparator = equal<KeyType>();
-            obj._countOfElements = 0;
-            obj._size = 128;
-            obj._slots = nullptr;
-        }
-
-        // operators =
-
-        HashTable<KeyType, ElementType>& operator= (const HashTable<KeyType, ElementType>& rhs) {
-            if (this != &rhs) {
-                auto tempSlots = new CollisionList[_size];
-                delete [] _slots;
-                _slots = tempSlots;
-                _size = rhs._size;
-                _hasher = rhs._hasher;
-                _equalComparator = rhs._equalComparator;
-                _countOfElements = 0;
-                for (size_t i = 0; i < _size; ++i) {
-                    _slots[i] = rhs._slots[i];
-                    ++_countOfElements;
-                }
-
-            }
-            return *this;
-        }
-
-
-        HashTable<KeyType, ElementType>& operator= (HashTable<KeyType, ElementType>&& rhs) noexcept {
-            if (this != &rhs) {
-                delete [] _slots;
-                _slots = rhs._slots;
-                _size = rhs._size;
-                _countOfElements = rhs._countOfElements;
-                _equalComparator = rhs._equalComparator;
-                _hasher = rhs._hasher;
-
-                rhs._slots = nullptr;
-                rhs._size = 128;
-                rhs._countOfElements = 0;
-                rhs._equalComparator = equal<KeyType>();
-                rhs._hasher = std::hash<KeyType>();
-            }
-            return *this;
-        }
-
-        // destructor
-
-        ~HashTable() override { delete [] _slots; }
-
-        // overrided methods
-
-        size_t size() const noexcept override { return _countOfElements; }
-
-        size_t capacity() const noexcept override { return _size * 3; }
-
-        ElementType get(ConstKeyRef key) const override {
-            if (_slots) {
-                auto index = _getHash(key);
-                return _slots[index].find(key, _equalComparator);
-            }
-            throw std::out_of_range{"element with this key is missing"};
-        }
-
-        ElementType operator[](ConstKeyRef key) const override { return get(key); }
-
-        bool check(ConstKeyRef key) const noexcept override {
-            if (_slots) {
-                auto index = _getHash(key);
-                return _slots[index].check(key, _equalComparator);
-            }
-            return false;
-        }
-
-        void add(ConstKeyRef key, ConstElementRef element) override {
-            if (!_slots) { _slots = new CollisionList[_size]; }
-            auto index = _getHash(key);
-            if (_slots[index].addOrModify(key, element, _equalComparator)) { ++_countOfElements; }
-            if ((_slots[index].size() > 3)
-                && ((_size << 1) < std::numeric_limits<size_t>::max())) {
-                _rebuild();
-            }
-        }
-
-        void remove(ConstKeyRef key) noexcept override {
-            if (_slots) {
-                auto index = _getHash(key);
-                if (_slots[index].remove(key, _equalComparator)) { --_countOfElements; }
-            }
-        }
-
-        void clear() noexcept override {
-            if (_slots) {
-                for (size_t i = 0; i < _size; ++i) { _slots[i].clear(); }
-                _countOfElements = 0;
-            }
-        }
-
-        void map(MapperType<ElementType> mapper) override {
-            for (size_t i = 0; i < _size; ++i) { _slots[i].map(mapper); }
-        }
-
     };
 
 }

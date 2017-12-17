@@ -12,13 +12,176 @@ namespace lab2::dictionary {
     template <class KeyType, class ElementType>
     class RBTree : public Dictionary<KeyType, ElementType> {
 
-    private:
+    public:
 
         // types
 
         using ConstKeyRef = const KeyType&;
 
         using ConstElementRef = const ElementType&;
+
+        // constructors
+
+        RBTree(ComparatorType<KeyType> relationComparator = less<KeyType>(),
+               ComparatorType<KeyType> equalComparator = equal<KeyType>()) noexcept
+                : _relationComparator{relationComparator}, _equalComparator{equalComparator},
+                  _root{nullptr}, _size{0} {}
+
+        RBTree(const RBTree& obj) : _size{obj._size}, _relationComparator{obj._relationComparator},
+                                    _equalComparator{obj._equalComparator}, _root{nullptr} {
+            if (obj._root) {
+                _root = new RBNode{*obj._root};
+                _recursiveCopy(_root);
+            }
+        }
+
+        RBTree(RBTree&& obj) noexcept : _relationComparator{obj._relationComparator},
+                                        _equalComparator{obj._equalComparator},
+                                        _size{obj._size}, _root{obj._root} {
+            obj._equalComparator = equal<KeyType>();
+            obj._relationComparator = less<KeyType>();
+            obj._root = nullptr;
+            obj._size = 0;
+        }
+
+        // operators =
+
+        RBTree<KeyType, ElementType>& operator= (const RBTree<KeyType, ElementType>& rhs) {
+            if (this != &rhs) {
+                clear();
+                _relationComparator = rhs._relationComparator;
+                _equalComparator = rhs._equalComparator;
+                _size = rhs._size;
+                if (rhs._root) {
+                    _root = new RBNode{*rhs._root};
+                    _recursiveCopy(_root);
+                }
+            }
+            return *this;
+        }
+
+        RBTree<KeyType, ElementType>& operator= (RBTree<KeyType, ElementType>&& rhs) noexcept {
+            if (this != &rhs) {
+                clear();
+                _relationComparator = rhs._relationComparator;
+                _equalComparator = rhs._equalComparator;
+                _size = rhs._size;
+                _root = rhs._root;
+
+                rhs._relationComparator = less<KeyType>();
+                rhs._equalComparator = equal<KeyType>();
+                rhs._size = 0;
+                rhs._root = nullptr;
+            }
+            return *this;
+        }
+
+        // destructor
+
+        ~RBTree() override { _recursiveClear(_root); }
+
+        // overrided methods
+
+        size_t size() const noexcept override { return _size; }
+
+        size_t capacity() const noexcept override { return  _size; }
+
+        ElementType get(ConstKeyRef key) const override {
+            for (auto node = _root; node;) {
+                if (_equalComparator(node -> field.first, key)) { return node -> field.second; }
+                if (_relationComparator(key, node -> field.first)) { node = node -> lSon; }
+                else { node = node -> rSon; }
+            }
+            throw std::out_of_range{"element with this key is missing"};
+        }
+
+        ElementType operator[](ConstKeyRef key) const override { return get(key); }
+
+        bool check(ConstKeyRef key) const noexcept override {
+            for (auto node = _root; node;) {
+                if (_equalComparator(node -> field.first, key)) { return true; }
+                if (_relationComparator(key, node -> field.first)) { node = node -> lSon; }
+                else { node = node -> rSon; }
+            }
+            return false;
+        }
+
+        void add(ConstKeyRef key, ConstElementRef element) override {
+            RBNode* addedNode = nullptr;
+            if (_root) {
+                for (auto node = _root; node;) {
+                    if (_equalComparator(node -> field.first, key)) {
+                        node -> field.second = element;
+                        return;
+                    }
+                    if (_relationComparator(key, node -> field.first)) {
+                        if (node -> lSon) {
+                            node = node -> lSon;
+                            continue;
+                        } else {
+                            addedNode = new RBNode{key, element, node};
+                            node -> lSon = addedNode;
+                            break;
+                        }
+                    } else {
+                        if (node -> rSon) {
+                            node = node -> rSon;
+                            continue;
+                        } else {
+                            addedNode = new RBNode{key, element, node};
+                            node -> rSon = addedNode;
+                            break;
+                        }
+                    }
+                }
+            } else {
+                _root = new RBNode{key, element};
+                addedNode = _root;
+            }
+            if (addedNode) {
+                ++_size;
+                _addBalance(addedNode);
+            }
+        }
+
+        void remove(ConstKeyRef key) noexcept override {
+            bool keyFound = false;
+            auto node = _root;
+            while (node) {
+                if (_equalComparator(key, node -> field.first)) {
+                    keyFound = true;
+                    break;
+                }
+                if (_relationComparator(key, node -> field.first)) { node = node -> lSon; }
+                else { node = node -> rSon; }
+            }
+            if (keyFound) {
+                if (node -> lSon && node -> rSon) {
+                    auto tempNode = node -> rSon;
+                    for (;tempNode -> lSon;
+                          tempNode = tempNode -> lSon);
+                    node -> field = std::move(tempNode -> field);
+                    _removeBalance(tempNode);
+                    delete tempNode;
+                } else {
+                    _removeBalance(node);
+                    delete node;
+                }
+                --_size;
+            }
+        }
+
+        void clear() noexcept override {
+            _recursiveClear(_root);
+            _root = nullptr;
+            _size = 0;
+        }
+
+        void map(MapperType<ElementType> mapper) override {
+            _recursiveMap(mapper, _root);
+        }
+
+    private:
 
         struct RBNode {
 
@@ -39,23 +202,6 @@ namespace lab2::dictionary {
             void changeColor() { isRed = !isRed; }
 
         };
-
-        /*
-        // debug utility
-
-        bool _isValid(RBNode* node, int depth) {
-            if (node) {
-                bool lSonValid = true;
-                bool rSonValid = true;
-                if (node->isRed) {
-                    lSonValid = node -> lSon ? !(node -> lSon -> isRed) : true;
-                    rSonValid = node -> rSon ? !(node -> rSon -> isRed) : true;
-                } else { ++depth; }
-                return lSonValid && rSonValid && _isValid(node -> lSon, depth) && _isValid(node -> rSon, depth);
-            } else {std::cout << depth << " ";}
-            return true;
-        }
-        */
 
         // utility methods
 
@@ -303,9 +449,6 @@ namespace lab2::dictionary {
             }
         }
 
-
-
-
         // fields
 
         ComparatorType<KeyType> _equalComparator;
@@ -315,169 +458,6 @@ namespace lab2::dictionary {
         RBNode* _root;
 
         size_t _size;
-
-    public:
-
-
-        // constructors
-
-        RBTree(ComparatorType<KeyType> relationComparator = less<KeyType>(),
-               ComparatorType<KeyType> equalComparator = equal<KeyType>()) noexcept
-                : _relationComparator{relationComparator}, _equalComparator{equalComparator},
-                  _root{nullptr}, _size{0} {}
-
-        RBTree(const RBTree& obj) : _size{obj._size}, _relationComparator{obj._relationComparator},
-                                    _equalComparator{obj._equalComparator}, _root{nullptr} {
-            if (obj._root) {
-                _root = new RBNode{*obj._root};
-                _recursiveCopy(_root);
-            }
-        }
-
-        RBTree(RBTree&& obj) noexcept : _relationComparator{obj._relationComparator},
-                                        _equalComparator{obj._equalComparator},
-                                        _size{obj._size}, _root{obj._root} {
-            obj._equalComparator = equal<KeyType>();
-            obj._relationComparator = less<KeyType>();
-            obj._root = nullptr;
-            obj._size = 0;
-        }
-
-        // operators =
-
-        RBTree<KeyType, ElementType>& operator= (const RBTree<KeyType, ElementType>& rhs) {
-            if (this != &rhs) {
-                clear();
-                _relationComparator = rhs._relationComparator;
-                _equalComparator = rhs._equalComparator;
-                _size = rhs._size;
-                if (rhs._root) {
-                    _root = new RBNode{*rhs._root};
-                    _recursiveCopy(_root);
-                } else { _root = nullptr; }
-            }
-            return *this;
-        }
-
-        RBTree<KeyType, ElementType>& operator= (RBTree<KeyType, ElementType>&& rhs) noexcept {
-            if (this != &rhs) {
-                _relationComparator = rhs._relationComparator;
-                _equalComparator = rhs._equalComparator;
-                _size = rhs._size;
-                _root = rhs._root;
-
-                rhs._relationComparator = less<KeyType>();
-                rhs._equalComparator = equal<KeyType>();
-                rhs._size = 0;
-                rhs._root = nullptr;
-            }
-            return *this;
-        }
-
-        // destructor
-
-        ~RBTree() override { _recursiveClear(_root); }
-
-        // overrided methods
-
-        size_t size() const noexcept override { return _size; }
-
-        size_t capacity() const noexcept override { return  _size; }
-
-        ElementType get(ConstKeyRef key) const override {
-            for (auto node = _root; node;) {
-                if (_equalComparator(node -> field.first, key)) { return node -> field.second; }
-                if (_relationComparator(key, node -> field.first)) { node = node -> lSon; }
-                else { node = node -> rSon; }
-            }
-            throw std::out_of_range{"element with this key is missing"};
-        }
-
-        ElementType operator[](ConstKeyRef key) const override { return get(key); }
-
-        bool check(ConstKeyRef key) const noexcept override {
-            for (auto node = _root; node;) {
-                if (_equalComparator(node -> field.first, key)) { return true; }
-                if (_relationComparator(key, node -> field.first)) { node = node -> lSon; }
-                else { node = node -> rSon; }
-            }
-            return false;
-        }
-
-        void add(ConstKeyRef key, ConstElementRef element) override {
-            RBNode* addedNode = nullptr;
-            if (_root) {
-                for (auto node = _root; node;) {
-                    if (_equalComparator(node -> field.first, key)) {
-                        node -> field.second = element;
-                        return;
-                    }
-                    if (_relationComparator(key, node -> field.first)) {
-                        if (node -> lSon) {
-                            node = node -> lSon;
-                            continue;
-                        } else {
-                            addedNode = new RBNode{key, element, node};
-                            node -> lSon = addedNode;
-                            break;
-                        }
-                    } else {
-                        if (node -> rSon) {
-                            node = node -> rSon;
-                            continue;
-                        } else {
-                            addedNode = new RBNode{key, element, node};
-                            node -> rSon = addedNode;
-                            break;
-                        }
-                    }
-                }
-            } else {
-                _root = new RBNode{key, element};
-                addedNode = _root;
-            }
-            if (addedNode) {
-                ++_size;
-                _addBalance(addedNode);
-            }
-        }
-
-        void remove(ConstKeyRef key) noexcept override {
-            bool keyFound = false;
-            auto node = _root;
-            while (node) {
-                if (_equalComparator(key, node -> field.first)) {
-                    keyFound = true;
-                    break;
-                }
-                if (_relationComparator(key, node -> field.first)) { node = node -> lSon; }
-                else { node = node -> rSon; }
-            }
-            if (keyFound) {
-                if (node -> lSon && node -> rSon) {
-                    auto tempNode = node -> rSon;
-                    for (;tempNode -> lSon;
-                         tempNode = tempNode -> lSon);
-                    node -> field = std::move(tempNode -> field);
-                    _removeBalance(tempNode);
-                    delete tempNode;
-                } else {
-                    _removeBalance(node);
-                    delete node;
-                }
-                --_size;
-            }
-        }
-
-        void clear() noexcept override {
-            _recursiveClear(_root);
-            _root = nullptr;
-            _size = 0;
-        }
-
-        void map(MapperType<ElementType> mapper) override {
-            _recursiveMap(mapper, _root);
-        }
 
     };
 }
