@@ -148,17 +148,17 @@ namespace lab2::dictionary {
 
         // clear utility
 
-        void _recurciveClear(RBNode* node) noexcept {
+        void _recursiveClear(RBNode* node) noexcept {
             if (node) {
-                _recurciveClear(node -> lSon);
-                _recurciveClear(node -> rSon);
+                _recursiveClear(node -> lSon);
+                _recursiveClear(node -> rSon);
                 delete node;
             }
         }
 
         // copy utility
 
-        void _recurciveCopy(RBNode* node) {
+        void _recursiveCopy(RBNode* node) {
             if (node) {
                 if (node -> lSon) {
                     node -> lSon = new RBNode{*(node -> lSon)};
@@ -168,8 +168,8 @@ namespace lab2::dictionary {
                     node -> rSon = new RBNode{*(node -> rSon)};
                     node -> rSon -> parent = node;
                 }
-                _recurciveCopy(node -> lSon);
-                _recurciveCopy(node -> rSon);
+                _recursiveCopy(node -> lSon);
+                _recursiveCopy(node -> rSon);
             }
         }
 
@@ -330,7 +330,7 @@ namespace lab2::dictionary {
                                     _equalComparator{obj._equalComparator}, _root{nullptr} {
             if (obj._root) {
                 _root = new RBNode{*obj._root};
-                _recurciveCopy(_root);
+                _recursiveCopy(_root);
             }
         }
 
@@ -347,12 +347,13 @@ namespace lab2::dictionary {
 
         RBTree<KeyType, ElementType>& operator= (const RBTree<KeyType, ElementType>& rhs) {
             if (this != &rhs) {
+                clear();
                 _relationComparator = rhs._relationComparator;
                 _equalComparator = rhs._equalComparator;
                 _size = rhs._size;
                 if (rhs._root) {
                     _root = new RBNode{*rhs._root};
-                    _recurciveCopy(_root);
+                    _recursiveCopy(_root);
                 } else { _root = nullptr; }
             }
             return *this;
@@ -375,7 +376,7 @@ namespace lab2::dictionary {
 
         // destructor
 
-        ~RBTree() override { _recurciveClear(_root); }
+        ~RBTree() override { _recursiveClear(_root); }
 
         // overrided methods
 
@@ -469,7 +470,7 @@ namespace lab2::dictionary {
         }
 
         void clear() noexcept override {
-            _recurciveClear(_root);
+            _recursiveClear(_root);
             _root = nullptr;
             _size = 0;
         }

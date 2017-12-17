@@ -1,0 +1,434 @@
+#######################
+LIST SORTED SEQUENCE TEST
+===========
+SORTED SEQUENCE SIZE TEST 1
+new SortedSequence constructed
+SortedSequence.size() = 0 expected 0 : OK
+===========
+===========
+SORTED SEQUENCE SIZE TEST 2
+new SortedSequence constructed
+added 100 elements
+SortedSequence.size() = 100 expected 100 : OK
+===========
+===========
+SORTED SEQUENCE ISEMPTY TEST 1
+new SortedSequence constructed
+SortedSequence.isEmpty() = 1 expected true : OK
+===========
+===========
+SORTED SEQUENCE ISEMPTY TEST 2
+new SortedSequence constructed
+added 5
+SortedSequence.isEmpty() = 0 expected false : OK
+===========
+===========
+SORTED SEQUENCE INDEXOF TEST 1
+new SortedSequence constructed
+trying to indexOf(0)
+expected exception : OK
+===========
+===========
+SORTED SEQUENCE INDEXOF TEST 2
+new SortedSequence constructed
+added 5, 4, 8, 15, -7
+SortedSequence.indexOf(5) = 2 expected 2 : OK
+===========
+===========
+SORTED SEQUENCE GET TEST 1
+new SortedSequence constructed
+trying to get(0)
+expected exception : OK
+===========
+===========
+SORTED SEQUENCE GET TEST 2
+new SortedSequence constructed
+added 5
+SortedSequence.get(0) = 5 expected 5 : OK
+===========
+===========
+SORTED SEQUENCE GETFIRST TEST 1
+new SortedSequence constructed
+trying to getFirst()
+expected exception : OK
+===========
+===========
+SORTED SEQUENCE GETFIRST TEST 2
+new SortedSequence constructed
+added 5
+SortedSequence.getFirst() = 5 expected 5 : OK
+===========
+===========
+SORTED SEQUENCE GETLAST TEST 1
+new SortedSequence constructed
+trying to getLast()
+expected exception : OK
+===========
+===========
+SORTED SEQUENCE GETLAST TEST 2
+new SortedSequence constructed
+added 5
+SortedSequence.getLast() = 5 expected 5 : OK
+===========
+===========
+SORTED SEQUENCE COPY TEST
+new SortedSequence constructed
+added 5, 4, 8, 15, -7
+copy() called
+Subsequence.get(0) = -7 expected -7 : OK
+===========
+===========
+SORTED SEQUENCE GETSUBSEQUENCE TEST 1
+new SortedSequence constructed
+trying to getSubsequence(10, 5)
+expected exception : OK
+===========
+===========
+SORTED SEQUENCE GETSUBSEQUENCE TEST 2
+new SortedSequence constructed
+added 5, 4, 8, 15, -7
+getSubsequence(2,3) called
+Subsequence.get(0) = 5 expected 5 : OK
+===========
+===========
+SORTED SEQUENCE CLEAR TEST 
+new SortedSequence constructed
+added 100 elements
+clear() called
+SortedSequence.size() = 0 expected 0 : OK
+===========
+===========
+SORTED SEQUENCE STRESS TEST INSERTION
+(inserts 1000 shuffled ints to SortedSequence
+and after each insertion checks that each
+next element not less that previous
+1 cycle : 1000/1000
+2 cycle : 1000/1000
+3 cycle : 1000/1000
+4 cycle : 1000/1000
+5 cycle : 1000/1000
+5/5 : OK
+===========
+===========
+SORTED SEQUENCE REMOVE TEST 1
+new SortedSequence constructed
+added (key = i, value = 0) i = 1..100
+remove(1000) called
+SortedSequence.size() = 100 expected 100 : OK
+===========
+===========
+SORTED SEQUENCE REMOVE TEST 2
+new SortedSequence constructed
+added (key = i, value = 0) i = 1..100
+remove(100) called
+SortedSequence.size() = 99 expected 99 : OK
+===========
+19/19 : OK
+##############################################
+ARRAY SORTED SEQUENCE TEST
+===========
+SORTED SEQUENCE SIZE TEST 1
+new SortedSequence constructed
+SortedSequence.size() = 0 expected 0 : OK
+===========
+===========
+SORTED SEQUENCE SIZE TEST 2
+new SortedSequence constructed
+added 100 elements
+SortedSequence.size() = 100 expected 100 : OK
+===========
+===========
+SORTED SEQUENCE ISEMPTY TEST 1
+new SortedSequence constructed
+SortedSequence.isEmpty() = 1 expected true : OK
+===========
+===========
+SORTED SEQUENCE ISEMPTY TEST 2
+new SortedSequence constructed
+added 5
+SortedSequence.isEmpty() = 0 expected false : OK
+===========
+===========
+SORTED SEQUENCE INDEXOF TEST 1
+new SortedSequence constructed
+trying to indexOf(0)
+expected exception : OK
+===========
+===========
+SORTED SEQUENCE INDEXOF TEST 2
+new SortedSequence constructed
+added 5, 4, 8, 15, -7
+SortedSequence.indexOf(5) = 2 expected 2 : OK
+===========
+===========
+SORTED SEQUENCE GET TEST 1
+new SortedSequence constructed
+trying to get(0)
+expected exception : OK
+===========
+===========
+SORTED SEQUENCE GET TEST 2
+new SortedSequence constructed
+added 5
+SortedSequence.get(0) = 5 expected 5 : OK
+===========
+===========
+SORTED SEQUENCE GETFIRST TEST 1
+new SortedSequence constructed
+trying to getFirst()
+expected exception : OK
+===========
+===========
+SORTED SEQUENCE GETFIRST TEST 2
+new SortedSequence constructed
+added 5
+SortedSequence.getFirst() = 5 expected 5 : OK
+===========
+===========
+SORTED SEQUENCE GETLAST TEST 1
+new SortedSequence constructed
+trying to getLast()
+expected exception : OK
+===========
+===========
+SORTED SEQUENCE GETLAST TEST 2
+new SortedSequence constructed
+added 5
+SortedSequence.getLast() = 5 expected 5 : OK
+===========
+===========
+SORTED SEQUENCE COPY TEST
+new SortedSequence constructed
+added 5, 4, 8, 15, -7
+copy() called
+Subsequence.get(0) = -7 expected -7 : OK
+===========
+===========
+SORTED SEQUENCE GETSUBSEQUENCE TEST 1
+new SortedSequence constructed
+trying to getSubsequence(10, 5)
+expected exception : OK
+===========
+===========
+SORTED SEQUENCE GETSUBSEQUENCE TEST 2
+new SortedSequence constructed
+added 5, 4, 8, 15, -7
+getSubsequence(2,3) called
+Subsequence.get(0) = 5 expected 5 : OK
+===========
+===========
+SORTED SEQUENCE CLEAR TEST 
+new SortedSequence constructed
+added 100 elements
+clear() called
+SortedSequence.size() = 0 expected 0 : OK
+===========
+===========
+SORTED SEQUENCE STRESS TEST INSERTION
+(inserts 1000 shuffled ints to SortedSequence
+and after each insertion checks that each
+next element not less that previous
+1 cycle : 1000/1000
+2 cycle : 1000/1000
+3 cycle : 1000/1000
+4 cycle : 1000/1000
+5 cycle : 1000/1000
+5/5 : OK
+===========
+===========
+SORTED SEQUENCE REMOVE TEST 1
+new SortedSequence constructed
+added (key = i, value = 0) i = 1..100
+remove(1000) called
+SortedSequence.size() = 100 expected 100 : OK
+===========
+===========
+SORTED SEQUENCE REMOVE TEST 2
+new SortedSequence constructed
+added (key = i, value = 0) i = 1..100
+remove(100) called
+SortedSequence.size() = 99 expected 99 : OK
+===========
+19/19 : OK
+##############################################
+HASHTABLE TEST
+===========
+HASHTABLE SIZE TEST 1
+new HashTable constructed
+HashTable.size() = 0 expected 0 : OK
+===========
+===========
+HASHTABLE SIZE TEST 2
+new HashTable constructed
+added 100 elements
+HashTable.size() = 100 expected 100 : OK
+===========
+===========
+HASHTABLE CAPACITY TEST 1
+new HashTable constructed
+HashTable.capacity() = 384 expected 384 : OK
+===========
+===========
+HASHTABLE CAPACITY TEST 2
+new HashTable constructed
+added 1000 elements
+HashTable.capacity() = 1536 expected more than 1000 : OK
+===========
+===========
+HASHTABLE CHECK TEST 1
+new HashTable constructed
+HashTable.check(1) = 0 expected false : OK
+===========
+===========
+HASHTABLE CHECK TEST 2
+new HashTable constructed
+added (key = 5, value = 13)
+HashTable.check(5) = 1 expected true : OK
+===========
+===========
+HASHTABLE GET TEST 1
+new HashTable constructed
+trying to get(0)
+expected exception : OK
+===========
+===========
+HASHTABLE GET TEST 2
+new HashTable constructed
+added (key = 5, value = 13)
+HashTable.get(5) = 13 expected 13 : OK
+===========
+===========
+HASHTABLE CLEAR TEST 
+new HashTable constructed
+added 100 elements
+clear() called
+HashTable.size() = 0 expected 0 : OK
+===========
+===========
+HASHTABLE MAP TEST 
+new HashTable constructed
+added (key = i, value = 0) i = 1..100
+map(inc) called
+(inc() increments value)
+HashTable.get(5) = 1 expected 1 : OK
+===========
+===========
+HASHTABLE STRESS TEST INSERTION
+(inserts 10000 shuffled ints to HashTable
+and after each insertion checks
+size() <= capacity()
+1 cycle : 10000/10000
+2 cycle : 10000/10000
+3 cycle : 10000/10000
+4 cycle : 10000/10000
+5 cycle : 10000/10000
+5/5 : OK
+===========
+===========
+HASHTABLE REMOVE TEST 1
+new HashTable constructed
+added (key = i, value = 0) i = 1..100
+remove(1000) called
+HashTable.size() = 100 expected 100 : OK
+===========
+===========
+HASHTABLE REMOVE TEST 2
+new HashTable constructed
+added (key = i, value = 0) i = 1..100
+remove(100) called
+HashTable.size() = 99 expected 99 : OK
+===========
+13/13 : OK
+##############################################
+RBTREE TEST
+===========
+RBTREE SIZE TEST 1
+new RBTree constructed
+RBTree.size() = 0 expected 0 : OK
+===========
+===========
+RBTREE SIZE TEST 2
+new RBTree constructed
+added 100 elements
+RBTree.size() = 100 expected 100 : OK
+===========
+===========
+RBTREE CAPACITY TEST 1
+new RBTree constructed
+RBTree.capacity() = 0 expected 0 : OK
+===========
+===========
+RBTREE CAPACITY TEST 2
+new RBTree constructed
+added 100 elements
+RBTree.capacity() = 100 expected 100 : OK
+===========
+===========
+RBTREE CHECK TEST 1
+new RBTree constructed
+RBTree.check(1) = 0 expected false : OK
+===========
+===========
+RBTREE CHECK TEST 2
+new RBTree constructed
+added (key = 5, value = 13)
+RBTree.check(5) = 1 expected true : OK
+===========
+===========
+RBTREE GET TEST 1
+new RBTree constructed
+trying to get(0)
+expected exception : OK
+===========
+===========
+RBTREE GET TEST 2
+new RBTree constructed
+added (key = 5, value = 13)
+RBTree.get(5) = 13 expected 13 : OK
+===========
+===========
+RBTREE CLEAR TEST 
+new RBTree constructed
+added 100 elements
+clear() called
+RBTree.size() = 0 expected 0 : OK
+===========
+===========
+RBTREE MAP TEST 
+new RBTree constructed
+added (key = i, value = 0) i = 1..100
+map(inc) called
+(inc() increments value)
+RBTree.get(5) = 1 expected 1 : OK
+===========
+===========
+RBTREE STRESS TEST INSERTION
+(inserts 10000 shuffled ints to RBTree
+and after each insertion checks that path
+from the root to the farthest leaf
+is no more than twice as long as the path
+from the root to the nearest leaf)
+1 cycle : 10000/10000
+2 cycle : 10000/10000
+3 cycle : 10000/10000
+4 cycle : 10000/10000
+5 cycle : 10000/10000
+5/5 : OK
+===========
+===========
+RBTREE STRESS TEST REMOVE
+(inserts 10000 shuffled ints to RBTree
+then removes them in random order
+and after each remove checks that path
+from the root to the farthest leaf
+is no more than twice as long as the path
+from the root to the nearest leaf)
+1 cycle : 10000/10000
+2 cycle : 10000/10000
+3 cycle : 10000/10000
+4 cycle : 10000/10000
+5 cycle : 10000/10000
+5/5 : OK
+===========
+12/12 : OK
+#######################
