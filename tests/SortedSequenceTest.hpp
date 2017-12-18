@@ -270,12 +270,52 @@ namespace lab2::test {
             test.add(-7);
             logString += "getSubsequence(2,3) called\n";
             auto subseq = test.getSubsequence(2,3);
+            auto got = subseq -> get(1);
+            logString += "Subsequence.get(1) = " + std::to_string(got) +
+                         " expected 8 : " + ((got == 8) ? "OK" : "PROBLEM");
+            delete subseq;
+            stream << decoration(logString);
+            return got == 8;
+        }
+
+        static int testGetSubsequenceValidIndicesEqualStartAndEnd(std::ostream& stream) {
+            std::string logString = std::string{"SORTED SEQUENCE GETSUBSEQUENCE TEST 3\n"}
+                                    + "new SortedSequence constructed\n";
+            SortedSequence<int>&& test = Sequence();
+            logString += "added 5, 4, 8, 15, -7\n";
+            test.add(5);
+            test.add(4);
+            test.add(8);
+            test.add(15);
+            test.add(-7);
+            logString += "getSubsequence(2,2) called\n";
+            auto subseq = test.getSubsequence(2,2);
             auto got = subseq -> get(0);
             logString += "Subsequence.get(0) = " + std::to_string(got) +
                          " expected 5 : " + ((got == 5) ? "OK" : "PROBLEM");
             delete subseq;
             stream << decoration(logString);
             return got == 5;
+        }
+
+        static int testGetSubsequenceValidIndicesTillEnd(std::ostream& stream) {
+            std::string logString = std::string{"SORTED SEQUENCE GETSUBSEQUENCE TEST 4\n"}
+                                    + "new SortedSequence constructed\n";
+            SortedSequence<int>&& test = Sequence();
+            logString += "added 5, 4, 8, 15, -7\n";
+            test.add(5);
+            test.add(4);
+            test.add(8);
+            test.add(15);
+            test.add(-7);
+            logString += "getSubsequence(2,4) called\n";
+            auto subseq = test.getSubsequence(2,4);
+            auto got = subseq -> get(2);
+            logString += "Subsequence.get(2) = " + std::to_string(got) +
+                         " expected 15 : " + ((got == 15) ? "OK" : "PROBLEM");
+            delete subseq;
+            stream << decoration(logString);
+            return got == 15;
         }
 
         static int testCopy(std::ostream& stream) {
@@ -333,11 +373,13 @@ namespace lab2::test {
             testsPassed += testCopy(stream);
             testsPassed += testGetSubsequenceInvalidIndices(stream);
             testsPassed += testGetSubsequenceValidIndices(stream);
+            testsPassed += testGetSubsequenceValidIndicesEqualStartAndEnd(stream);
+            testsPassed += testGetSubsequenceValidIndicesTillEnd(stream);
             testsPassed += testClear(stream);
             testsPassed += stressTestInsert(stream, 1000, 5);
             testsPassed += testRemoveNotExist(stream);
             testsPassed += testRemoveExist(stream);
-            stream << testsPassed << "/19 : OK\n#######################";
+            stream << testsPassed << "/21 : OK\n#######################";
         }
     };
 }

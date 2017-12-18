@@ -88,7 +88,21 @@ SORTED SEQUENCE GETSUBSEQUENCE TEST 2
 new SortedSequence constructed
 added 5, 4, 8, 15, -7
 getSubsequence(2,3) called
+Subsequence.get(1) = 8 expected 8 : OK
+===========
+===========
+SORTED SEQUENCE GETSUBSEQUENCE TEST 3
+new SortedSequence constructed
+added 5, 4, 8, 15, -7
+getSubsequence(2,2) called
 Subsequence.get(0) = 5 expected 5 : OK
+===========
+===========
+SORTED SEQUENCE GETSUBSEQUENCE TEST 4
+new SortedSequence constructed
+added 5, 4, 8, 15, -7
+getSubsequence(2,4) called
+Subsequence.get(2) = 15 expected 15 : OK
 ===========
 ===========
 SORTED SEQUENCE CLEAR TEST 
@@ -123,7 +137,7 @@ added (key = i, value = 0) i = 1..100
 remove(100) called
 SortedSequence.size() = 99 expected 99 : OK
 ===========
-19/19 : OK
+21/21 : OK
 ##############################################
 ARRAY SORTED SEQUENCE TEST
 ===========
@@ -214,7 +228,21 @@ SORTED SEQUENCE GETSUBSEQUENCE TEST 2
 new SortedSequence constructed
 added 5, 4, 8, 15, -7
 getSubsequence(2,3) called
+Subsequence.get(1) = 8 expected 8 : OK
+===========
+===========
+SORTED SEQUENCE GETSUBSEQUENCE TEST 3
+new SortedSequence constructed
+added 5, 4, 8, 15, -7
+getSubsequence(2,2) called
 Subsequence.get(0) = 5 expected 5 : OK
+===========
+===========
+SORTED SEQUENCE GETSUBSEQUENCE TEST 4
+new SortedSequence constructed
+added 5, 4, 8, 15, -7
+getSubsequence(2,4) called
+Subsequence.get(2) = 15 expected 15 : OK
 ===========
 ===========
 SORTED SEQUENCE CLEAR TEST 
@@ -249,7 +277,7 @@ added (key = i, value = 0) i = 1..100
 remove(100) called
 SortedSequence.size() = 99 expected 99 : OK
 ===========
-19/19 : OK
+21/21 : OK
 ##############################################
 HASHTABLE TEST
 ===========

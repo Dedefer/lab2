@@ -209,7 +209,7 @@ namespace lab2::sequence {
                     if (nodePtrForTemp -> _next) {
                         nodePtrForTemp -> _next = new TNode(*(nodePtrForTemp -> _next));
                     }
-                    if (i == (endIndex - 1)) { nodePtrForTemp -> _next = nullptr; }
+                    if (i == (endIndex - 1)) { nodePtrForTemp -> _next -> _next = nullptr; }
                     ++i;
                     ++(tempObj -> _len);
                 }
