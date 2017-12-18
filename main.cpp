@@ -1,28 +1,28 @@
 #include <iostream>
-#include "src/sorted_sequence/ArraySortedSequence.hpp"
+#include <fstream>
+#include "tests/RBTreeTest.hpp"
+#include "tests/HashTableTest.hpp"
+#include "tests/SortedSequenceTest.hpp"
 #include "src/sorted_sequence/ListSortedSequence.hpp"
+#include "src/sorted_sequence/ArraySortedSequence.hpp"
+#include "tests/ArraySortedSequenceSearchSpeedTest.hpp"
 
-
-bool grater(const int& a, const int& b) {
-    return a > b;
-}
-
-using namespace lab2::sequence;
 
 int main() {
-    SortedSequence<int>* a = new ListSortedSequence<int>(grater);
-    a -> add(5);
-    a -> add(8);
-    a -> add(4);
-    a -> add(5);
-    a -> add(5);
-
-    for (int i = 0, size = a -> getLength(); i < size; ++i) {
-        std::cout << a -> get(i) << std::endl;
+    using namespace lab2::test;
+    using namespace lab2::sequence;
+    auto file = std::ofstream("../testlog.txt");
+    if (file) {
+        SortedSequenceTest<ListSortedSequence<int>>::testScript(file, "LIST");
+        SortedSequenceTest<ArraySortedSequence<int>>::testScript(file, "ARRAY");
+        lab2::test::HashTableTest::testScript(file);
+        lab2::test::RBTreeTest::testScript(file);
     }
-
-    try {
-        std::cout << std::endl << a -> indexOf(5);
-    } catch (std::exception& p) {std::cout << p.what();}
+    /*
+    auto file = std::ofstream("../SpeedTest.txt");
+    if (file) {
+        ArraySequenceSearchSpeedTest::compareLinearAndBinary(file, 10000, 50000, 500);
+    }
+    */
     return 0;
 }

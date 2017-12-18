@@ -200,7 +200,10 @@ namespace lab2::sequence {
                 tempObj -> _head = new TNode(*nodePtr);
                 auto nodePtrForTemp = tempObj -> _head;
                 ++(tempObj -> _len);
-
+                if (startIndex == endIndex) {
+                    nodePtrForTemp -> _next = nullptr;
+                    return tempObj;
+                }
 
                 for (; i < endIndex; nodePtrForTemp = nodePtrForTemp -> _next) {
                     if (nodePtrForTemp -> _next) {
